@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0-*",
+  "dependencies": {
+    "Domain": "1.0.0-*",
+    "WebApp": "1.0.0-*"
+  },
+  "frameworks": {
+    "netstandard1.6": {}
+  }
+}

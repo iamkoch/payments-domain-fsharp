@@ -73,13 +73,13 @@
   },
   "scripts": {
     "precompile": [
-      "dotnet bundle"
+      // "dotnet bundle"
     ],
     "prepublish": [
-      "bower install"
+      // "bower install"
     ],
     "postpublish": [
-      "dotnet publish-iis --publish-folder %publish:OutputPath% --framework %publish:FullTargetFramework%"
+      // "dotnet publish-iis --publish-folder %publish:OutputPath% --framework %publish:FullTargetFramework%"
     ]
   },
   "tooling": {

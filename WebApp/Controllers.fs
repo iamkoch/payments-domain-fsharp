@@ -3,6 +3,8 @@ namespace WebApplicationBasic.Controllers
 open System
 open System.Collections.Generic
 open System.Linq
+open System.Net
+open System.Net.Http
 open System.Threading.Tasks
 open Microsoft.AspNetCore.Mvc
 open Newtonsoft.Json
@@ -51,3 +53,13 @@ type PaymentController() =
         Aggregate.makeHandler 
             { zero = Client.State.Zero; apply = Client.apply; exec = Client.exec }
             (EventStore.makeRepository Global.EventStore.Value "Client" Serialization.serializer)
+
+    let handleCommand (id,v) c = handleCommand' (id,v) c |> Async.RunSynchronously
+
+    member x.Post ([<FromBody>]item:CreatePaymentModel) =
+        let result = 
+            Client.SchedulePayment (item.id, item.sourceSortCode, item.sourceAccount, item.destinationSortCode, item.destinationAccount, item.amount, item.date) 
+            |> handleCommand (item.id, 0)
+        match result with
+            | Choice1Of2 x -> new HttpResponseMessage(HttpStatusCode.OK) :> obj
+            | _ -> new HttpResponseMessage(HttpStatusCode.BadRequest) :> obj

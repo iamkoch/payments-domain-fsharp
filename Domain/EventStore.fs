@@ -19,7 +19,7 @@ let makeRepository (conn:IEventStoreConnection) category (serialize:obj -> strin
 
     let load (t,id) = async {
         let streamId = streamId id
-        let! eventsSlice = conn.ReadStreamEventsForwardAsync(streamId, 1, Int32.MaxValue, false) |> Async.AwaitTask
+        let! eventsSlice = conn.ReadStreamEventsForwardAsync(streamId, 1, 20, false) |> Async.AwaitTask
         return eventsSlice.Events |> Seq.map (fun e -> deserialize(t, e.Event.EventType, e.Event.Data))
     }
 

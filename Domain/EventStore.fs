@@ -28,8 +28,9 @@ let makeRepository (conn:IEventStoreConnection) category (serialize:obj -> strin
         let eventType,data = serialize e
         let metaData = [||] : byte array
         let eventData = new EventData(Guid.NewGuid(), eventType, true, data, metaData)
-        if expectedVersion = 0 then conn.AppendToStreamAsync(streamId, ExpectedVersion.Any, eventData) |> Async.AwaitIAsyncResult |> Async.Ignore |> ignore
-        return! conn.AppendToStreamAsync(streamId, expectedVersion, eventData) |> Async.AwaitIAsyncResult |> Async.Ignore
+        if expectedVersion = 0 
+            then conn.AppendToStreamAsync(streamId, ExpectedVersion.Any, eventData) |> Async.AwaitIAsyncResult |> Async.Ignore |> ignore
+            else conn.AppendToStreamAsync(streamId, expectedVersion, eventData) |> Async.AwaitIAsyncResult |> Async.Ignore |> ignore
     }
 
     load,commit

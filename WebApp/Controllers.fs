@@ -45,13 +45,25 @@ type CreatePaymentModel = {
     date : DateTime;
 }
 
+type CreatePaymentResponse = 
+    | Success of bool
+    | Error of bool * string list
+
 [<Route("api/[controller]")>]
 type PaymentController() =
     inherit Controller()
 
+    let gva (an:Client.AccountNumber) =
+        let ac = { Client.IsActive = true; }
+        Choice2Of2 ["oops something went wrong"] (* make Choice1Of2 ac to succeed*)
+
+    let services = {
+        Client.accountService = { getValidAccount = gva; }
+    }
+
     let handleCommand' =
         Aggregate.makeHandler 
-            { zero = Client.State.Zero; apply = Client.apply; exec = Client.exec }
+            { zero = Client.State.Zero; apply = Client.apply; exec = Client.exec services }
             (EventStore.makeRepository Global.EventStore.Value "Client" Serialization.serializer)
 
     let handleCommand (id,v) c = handleCommand' (id,v) c |> Async.RunSynchronously
@@ -61,5 +73,5 @@ type PaymentController() =
             Client.SchedulePayment (item.id, item.sourceSortCode, item.sourceAccount, item.destinationSortCode, item.destinationAccount, item.amount, item.date) 
             |> handleCommand (item.id, 0)
         match result with
-            | Choice1Of2 x -> new HttpResponseMessage(HttpStatusCode.OK) :> obj
-            | _ -> new HttpResponseMessage(HttpStatusCode.BadRequest) :> obj
+            | Choice1Of2 x -> Success(true)
+            | Choice2Of2 x -> Error (false, x)
